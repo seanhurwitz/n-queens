@@ -8,12 +8,22 @@ import {
   ChessBoardContainer,
   Reset,
   Stats,
+  IndexContext,
 } from "./styles";
-import { buildBoard, determineAttacked } from "./functions";
+import {
+  buildBoard,
+  determineAttacked,
+  QUEEN,
+  ATTACKED,
+  EMPTY,
+} from "./functions";
 
-const [QUEEN, ATTACKED, EMPTY] = ["Q", "x", undefined];
-
-const Chessboard = ({ passedBoard = buildBoard(), size = 8 }) => {
+const Chessboard = ({
+  passedBoard = buildBoard(),
+  size = 8,
+  disable = false,
+  showIndexes,
+}) => {
   const [queensLeft, setQueensLeft] = useState(size);
   const [board, setBoard] = useState(passedBoard);
 
@@ -90,7 +100,6 @@ const Chessboard = ({ passedBoard = buildBoard(), size = 8 }) => {
   useEffect(resetBoard, [size, passedBoardString]);
 
   const isNoMoreAvailableMoves = board.every((r) => r.every(Boolean));
-  console.log(`isNoMoreAvailableMoves`, isNoMoreAvailableMoves);
 
   const statsText =
     queensLeft === 0
@@ -106,7 +115,7 @@ const Chessboard = ({ passedBoard = buildBoard(), size = 8 }) => {
           row.map((col, colIndex) => {
             const hasQueen = col === QUEEN;
             const isAttacked = col === ATTACKED;
-            const canBeClicked = !isAttacked;
+            const canBeClicked = !disable & !isAttacked;
             const key = `${rowIndex}${colIndex}`;
             const isDark = (rowIndex + colIndex) % 2 !== 0;
             return (
@@ -130,15 +139,22 @@ const Chessboard = ({ passedBoard = buildBoard(), size = 8 }) => {
                   </Fragment>
                 )}
                 {isAttacked && <AttackedSquare />}
+                {showIndexes && (
+                  <IndexContext>
+                    [{rowIndex}, {colIndex}]
+                  </IndexContext>
+                )}
               </Square>
             );
           })
         )}
       </ChessboardBase>
-      <Stats>
-        <div>{statsText}</div>
-        <Reset onClick={resetBoard}>Reset</Reset>
-      </Stats>
+      {!disable && (
+        <Stats>
+          <div>{statsText}</div>
+          <Reset onClick={resetBoard}>Reset</Reset>
+        </Stats>
+      )}
     </ChessBoardContainer>
   );
 };

@@ -11,7 +11,7 @@ const Body = styled.div`
   & h1,
   h2,
   p {
-    padding: 1rem;
+    padding: 2rem 1rem;
     text-align: center;
     font-size: 1.5rem;
   }
@@ -20,6 +20,16 @@ const Body = styled.div`
   }
   & h1 {
     font-size: 6rem;
+  }
+  & ol,
+  li {
+    font-size: 1.5rem;
+    text-align: left;
+  }
+  & p {
+    line-height: 2.2rem;
+    text-align: justify;
+    text-justify: justify;
   }
   & input {
     padding: 0.5rem;
@@ -94,6 +104,16 @@ const Reset = styled.div`
   color: "#45103E";
 `;
 
+const Bottom = styled.div`
+  height: 500px;
+`;
+
+const IndexContext = styled.div`
+  color: black;
+  background: white;
+  padding: 0.2rem;
+`;
+
 export {
   Reset,
   Square,
@@ -105,4 +125,6 @@ export {
   ChessBoardContainer,
   Stats,
   InputContainer,
+  Bottom,
+  IndexContext,
 };
