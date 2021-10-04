@@ -37,7 +37,6 @@ const Chessboard = ({ passedBoard = buildBoard(), size = 8 }) => {
             .filter(
               (coord) => coord && coord[0] !== rowIndex && coord[1] !== colIndex
             );
-          console.log(`queenPositions`, queenPositions);
           const emptyBoard = buildBoard(size);
           if (queenPositions.length === 0) {
             return emptyBoard;
@@ -47,37 +46,33 @@ const Chessboard = ({ passedBoard = buildBoard(), size = 8 }) => {
               return newRow.map((_, newColIndex) => {
                 const isAttacked = queenPositions.some((coord) => {
                   const [queenRowIndex, queenColIndex] = coord;
-                  const isOnRow = newRowIndex === queenRowIndex;
-                  const isOnCol = newColIndex === queenColIndex;
-                  const isOnDiagonal =
-                    Math.abs(queenRowIndex - newRowIndex) ===
-                    Math.abs(queenColIndex - newColIndex);
-                  return isOnRow || isOnCol || isOnDiagonal;
+                  return determineAttacked({
+                    rowIndex: newRowIndex,
+                    colIndex: newColIndex,
+                    queenRowIndex,
+                    queenColIndex,
+                  });
                 });
                 return isAttacked ? ATTACKED : EMPTY;
               });
             }
           );
           queenPositions.forEach((coord) => {
-            const [queenRowIndex, queenColIndex] = coord;
-            removedQueenBoard[queenRowIndex][queenColIndex] = QUEEN;
+            removedQueenBoard[coord[0]][coord[1]] = QUEEN;
           });
           return removedQueenBoard;
         }
         const newBoard = prev.map((prevRow, prevRowIndex) => {
           return prevRow.map((prevCol, prevColIndex) => {
-            const isOnDiagonal =
-              Math.abs(rowIndex - prevRowIndex) ===
-              Math.abs(colIndex - prevColIndex);
-            const isOnColumn = prevColIndex === colIndex;
-            const isOnRow = prevRowIndex === rowIndex;
+            const isAttacked = determineAttacked({
+              rowIndex: prevRowIndex,
+              colIndex: prevColIndex,
+              queenColIndex: colIndex,
+              queenRowIndex: rowIndex,
+            });
             const isQueenSquare =
               prevRowIndex === rowIndex && prevColIndex === colIndex;
-            return isQueenSquare
-              ? QUEEN
-              : isOnDiagonal || isOnColumn || isOnRow
-              ? ATTACKED
-              : prevCol;
+            return isQueenSquare ? QUEEN : isAttacked ? ATTACKED : prevCol;
           });
         });
         return newBoard;

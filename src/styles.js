@@ -13,9 +13,13 @@ const Body = styled.div`
   p {
     padding: 1rem;
     text-align: center;
+    font-size: 1.5rem;
+  }
+  & h2 {
+    font-size: 2.5rem;
   }
   & h1 {
-    font-size: 4rem;
+    font-size: 6rem;
   }
   & input {
     padding: 0.5rem;
@@ -24,7 +28,7 @@ const Body = styled.div`
 `;
 
 const InputContainer = styled.div`
-  width: 400px;
+  width: 500px;
   display: grid;
   grid-template-columns: auto 1fr;
   align-items: center;
@@ -64,8 +68,8 @@ const Queen = styled.img`
 `;
 
 const ChessboardBase = styled.div`
-  width: 400px;
-  height: 400px;
+  width: 500px;
+  height: 500px;
   display: grid;
   grid-template-columns: ${({ size }) => `repeat(${size}, 1fr)`};
   grid-template-rows: ${({ size }) => `repeat(${size}, 1fr)`};
