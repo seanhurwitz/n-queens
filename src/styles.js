@@ -101,7 +101,7 @@ const Stats = styled.div`
 const Reset = styled.div`
   cursor: pointer;
   font-weight: bold;
-  color: "#45103E";
+  color: #45103e;
 `;
 
 const Bottom = styled.div`
@@ -114,6 +114,17 @@ const IndexContext = styled.div`
   padding: 0.2rem;
 `;
 
+const Button = styled.button`
+  padding: 1rem 2rem;
+  border-radius: 3px;
+  color: white;
+  background: #45103e;
+  border: none;
+  font-weight: bold;
+  font-size: 1.5rem;
+  cursor: pointer;
+`;
+
 export {
   Reset,
   Square,
@@ -124,6 +135,7 @@ export {
   AttackedSquare,
   ChessBoardContainer,
   Stats,
+  Button,
   InputContainer,
   Bottom,
   IndexContext,

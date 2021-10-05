@@ -1,22 +1,22 @@
-import React, { useState, Fragment, useEffect } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import {
-  ChessboardBase,
-  Square,
-  Queen,
-  QueenSquare,
-  AttackedSquare,
-  ChessBoardContainer,
-  Reset,
-  Stats,
-  IndexContext,
-} from "./styles";
-import {
+  ATTACKED,
   buildBoard,
   determineAttacked,
+  placeQueensOnBoard,
   QUEEN,
-  ATTACKED,
-  EMPTY,
 } from "./functions";
+import {
+  AttackedSquare,
+  ChessboardBase,
+  ChessBoardContainer,
+  IndexContext,
+  Queen,
+  QueenSquare,
+  Reset,
+  Square,
+  Stats,
+} from "./styles";
 
 const Chessboard = ({
   passedBoard = buildBoard(),
@@ -47,30 +47,10 @@ const Chessboard = ({
             .filter(
               (coord) => coord && coord[0] !== rowIndex && coord[1] !== colIndex
             );
-          const emptyBoard = buildBoard(size);
-          if (queenPositions.length === 0) {
-            return emptyBoard;
-          }
-          const removedQueenBoard = buildBoard(size).map(
-            (newRow, newRowIndex) => {
-              return newRow.map((_, newColIndex) => {
-                const isAttacked = queenPositions.some((coord) => {
-                  const [queenRowIndex, queenColIndex] = coord;
-                  return determineAttacked({
-                    rowIndex: newRowIndex,
-                    colIndex: newColIndex,
-                    queenRowIndex,
-                    queenColIndex,
-                  });
-                });
-                return isAttacked ? ATTACKED : EMPTY;
-              });
-            }
-          );
-          queenPositions.forEach((coord) => {
-            removedQueenBoard[coord[0]][coord[1]] = QUEEN;
+          return placeQueensOnBoard({
+            board: buildBoard(size),
+            queenPositions,
           });
-          return removedQueenBoard;
         }
         const newBoard = prev.map((prevRow, prevRowIndex) => {
           return prevRow.map((prevCol, prevColIndex) => {

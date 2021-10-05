@@ -1,4 +1,6 @@
-const [QUEEN, ATTACKED, EMPTY] = ["Q", "x", ""];
+import { reverse, uniq } from "ramda";
+
+const [QUEEN, ATTACKED, EMPTY] = ["Q", "x", " "];
 
 const determineAttacked = ({
   rowIndex,
@@ -38,8 +40,55 @@ const placeQueensOnBoard = ({ board, queenPositions }) => {
 };
 
 const buildBoard = (n = 8, queenPositions = []) => {
-  const board = [...Array(n)].map(() => [...Array(n)]);
+  const board = [...Array(n)].map(() => [...Array(n).fill(EMPTY)]);
   return placeQueensOnBoard({ board, queenPositions });
 };
 
-export { buildBoard, determineAttacked, QUEEN, ATTACKED, EMPTY };
+const buildFlatBoard = (n = 8) => {
+  return EMPTY.repeat(n ** 2);
+};
+
+const flipBoardHorizontally = (board) => board.map((row) => reverse(row));
+const flipBoardVertically = (board) => reverse(board);
+const flipBoardDiagonally = (board) =>
+  board.map((_, rowIndex) =>
+    _.map((__, colIndex) => board[colIndex][rowIndex])
+  );
+
+const transformFlatBoard = (board = "") => {
+  const size = Math.sqrt(board.length);
+  return [...Array(size)].map((row, rowIndex) =>
+    [...Array(size)].map((col, colIndex) => {
+      const boardPosition = size * rowIndex + colIndex;
+      return board[boardPosition];
+    })
+  );
+};
+
+const getAllTranslationsOfBoard = (board) => {
+  const horizFlip = flipBoardHorizontally(board);
+  const vertFlip = flipBoardVertically(board);
+  const fullFlip = flipBoardHorizontally(vertFlip);
+  return uniq([
+    board,
+    horizFlip,
+    vertFlip,
+    fullFlip,
+    ...[horizFlip, vertFlip, fullFlip].map((brd) => flipBoardDiagonally(brd)),
+  ]);
+};
+
+export {
+  buildBoard,
+  determineAttacked,
+  transformFlatBoard,
+  placeQueensOnBoard,
+  QUEEN,
+  ATTACKED,
+  EMPTY,
+  flipBoardVertically,
+  flipBoardHorizontally,
+  flipBoardDiagonally,
+  getAllTranslationsOfBoard,
+  buildFlatBoard,
+};

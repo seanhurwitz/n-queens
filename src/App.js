@@ -1,11 +1,38 @@
-import { useState } from "react";
+import { useState, Fragment, useEffect } from "react";
 import Chessboard from "./Chessboard";
-import { Body, InputContainer, Bottom } from "./styles";
+import { Body, InputContainer, Bottom, Button } from "./styles";
 import { buildBoard } from "./functions";
 import CodeBlock from "./CodeBlock";
+import getUniqueSolutions from "./algorithm";
 
 function App() {
   const [initialBoardSize, setInitialBoardSize] = useState(8);
+  const [algorithmBoardSize, setAlgorithmBoardSize] = useState(6);
+  const [algorithmResults, setAlgorithmResults] = useState();
+  const [loading, setLoading] = useState(false);
+  console.log(`loading`, loading);
+  const runAlgorithm = async (size) => {
+    await setLoading(true);
+    setTimeout(
+      () =>
+        getUniqueSolutions(size).then(
+          ({ timeStart, timeEnd, timeBeforeUniq, uniqueSolutions }) => {
+            setAlgorithmResults({
+              timeStart,
+              timeBeforeUniq,
+              timeEnd,
+              uniqueSolutions,
+            });
+            setLoading(false);
+          }
+        ),
+      1000
+    );
+  };
+
+  useEffect(() => {
+    setAlgorithmResults();
+  }, [algorithmBoardSize]);
   return (
     <Body>
       <h1>N-Queens Problem</h1>
@@ -256,6 +283,121 @@ const board = [...Array(n)].map(() => [...Array(n)]);
       <p>
         Voila! We have found our <strong>Base Case!!</strong>
       </p>
+      <h2>The Glory Code</h2>
+      <p>
+        This code will resursively find all unique fundamental solutions of the
+        N queens problem. Beware. Above N=8 takes a bit to compute!
+      </p>
+      <CodeBlock>
+        {`
+      
+      const getUniqueSolutions = async (
+        n = 8,
+        queenPositions = [],
+        uniqueSolutions = [],
+        prevBoard = ""
+      ) => {
+        const timeStart = new Date();
+        const placedQueens = queenPositions.length;
+        let board = prevBoard.length === 0 ? buildFlatBoard(n) : prevBoard;
+        const emptyCells = [];
+        for (let index = 0; index < board.length; index++) {
+          const [rowIndex, colIndex] = getCoordinate({ size: n, index });
+          const cell = board[index];
+          if (placedQueens === 0) {
+            emptyCells.push([rowIndex, colIndex]);
+          } else {
+            const [queenRowIndex, queenColIndex] = queenPositions[placedQueens - 1];
+            const isQueen = rowIndex === queenRowIndex && colIndex === queenColIndex;
+            const isAttacked =
+              !isQueen &&
+              determineAttacked({
+                rowIndex,
+                colIndex,
+                queenColIndex,
+                queenRowIndex,
+              });
+            const isEmpty = !isQueen && !isAttacked && cell === EMPTY;
+            if (isEmpty) {
+              emptyCells.push([rowIndex, colIndex]);
+            }
+            if (cell === EMPTY && !isEmpty) {
+              board = replaceAt(
+                board,
+                index,
+                isQueen ? QUEEN : isAttacked ? ATTACKED : EMPTY
+              );
+            }
+          }
+        }
+        if (placedQueens === n) {
+          uniqueSolutions.push(board);
+          return;
+        }
+        while (emptyCells.length > 0) {
+          getUniqueSolutions(
+            n,
+            append(emptyCells.pop(), queenPositions),
+            uniqueSolutions,
+            board
+          );
+        }
+        if (placedQueens === 0) {
+          const timeBeforeUniq = new Date();
+          const un = getFundamentalSolutions(uniq(uniqueSolutions));
+          const timeEnd = new Date();
+          return { timeStart, timeEnd, uniqueSolutions: un, timeBeforeUniq };
+        }
+      };
+      
+      `}
+      </CodeBlock>
+      <p>
+        Lines 46 to 52 call the function recursively, with a new set of Queens
+        and a passed board to reduce the number of Empty cells. A depth-first
+        search of this magnitude will have a time of O(N!)
+      </p>
+      <h2>Let's see it in action!</h2>
+      <InputContainer>
+        <p>Size:</p>
+        <input
+          type="number"
+          value={algorithmBoardSize}
+          onChange={(e) => setAlgorithmBoardSize(+e.target.value)}
+        />
+      </InputContainer>
+      <Button
+        onClick={() => {
+          runAlgorithm(algorithmBoardSize);
+        }}
+      >
+        RUN!
+      </Button>
+      {loading ? (
+        <h2>Loading...</h2>
+      ) : (
+        algorithmResults && (
+          <Fragment>
+            <p>Time begun: {algorithmResults.timeStart.toString()}</p>
+            <p>
+              Time until fundamental stripping (ie removing symmetrical
+              solutions): {algorithmResults.timeBeforeUniq.toString()}
+            </p>
+            <p>Total Time: {algorithmResults.timeEnd.toString()}</p>
+            <p>
+              <strong>{algorithmResults.uniqueSolutions.length}</strong>{" "}
+              Fundamental Solution(s)
+            </p>
+            {algorithmResults.uniqueSolutions.map((soln) => (
+              <Chessboard
+                passedBoard={soln}
+                disable
+                size={algorithmBoardSize}
+              />
+            ))}
+          </Fragment>
+        )
+      )}
       <Bottom />
     </Body>
   );
